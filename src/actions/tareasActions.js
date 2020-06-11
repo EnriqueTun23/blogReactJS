@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { TRAER_TODAS, CARGANDO, ERROR, CAMBIO_USUARIO_ID, CAMBIO_TITULO, AGREGADA } from '../types/tareasTypes'
+import { TRAER_TODAS, CARGANDO, ERROR, CAMBIO_USUARIO_ID, CAMBIO_TITULO, GUARDAR, ACTUALIZAR_CHECK, LIMPIAR } from '../types/tareasTypes'
 
 export const traerTodas = () => async (dispatch) => {
     dispatch({
@@ -54,13 +54,87 @@ export const agregar = (nueva_tarea) => async (dispatch) => {
         const respuesta = await axios.post('https://jsonplaceholder.typicode.com/todos', nueva_tarea);
         console.log(respuesta.data)
         dispatch({
-            type: AGREGADA
+            type: GUARDAR
         })
     } catch (error) {   
         console.log(error.message)
         dispatch({
             type: ERROR,
-            payload: 'Intente mas tarde'
+            payload: 'Intente mas tarde error en la api post tarea '
         })
     }
+}
+
+export const editar = (tarea_editada) => async (dispatch) => {
+    dispatch({
+        type: CARGANDO
+    })
+    try {
+        const respuesta = await axios.put(`https://jsonplaceholder.typicode.com/todos/${tarea_editada.id}`, tarea_editada);
+        console.log(respuesta.data)
+        dispatch({
+            type: GUARDAR
+        })
+    } catch (error) {   
+        console.log(error.message)
+        dispatch({
+            type: ERROR,
+            payload: 'Intente mas tarde error en la api put tareas '
+        })
+    }
+}
+
+export const cambioCheck = (uso_id, tar_id) => (dispatch, getState) => {
+    const { tareas } = getState().tareasReducer;
+    // inmutabilidad
+    const seleccionada = tareas[uso_id][tar_id]
+    // variable actualizadas
+    const actualizadas = {
+        ...tareas
+    };
+    console.log(actualizadas)
+    // nivel 2
+    actualizadas[uso_id] = {
+        ...tareas[uso_id]
+    }
+    console.log(actualizadas[uso_id])
+    // otro nivel
+    actualizadas[uso_id][tar_id] = {
+        ...tareas[uso_id][tar_id],
+        completed: !seleccionada.completed
+    }
+    console.log(actualizadas[uso_id][tar_id])
+    dispatch({
+        type: ACTUALIZAR_CHECK,
+        payload: actualizadas
+    })
+
+}
+
+
+export const eliminar = (tar_id) =>  async (dispatch) => {
+    dispatch({
+        type: CARGANDO
+    })
+    try {
+        const respuesta = await axios.delete(`https://jsonplaceholder.typicode.com/todos/${tar_id}`);
+        console.log(respuesta)
+        dispatch({
+            type: TRAER_TODAS,
+            payload: {}
+        });
+    } catch (error) {
+        console.log(error.message)
+        dispatch({
+            type: ERROR,
+            payload: 'Servicio eliminar no disponible'
+        })
+    }
+}
+
+
+export const limpiarForma = () => (dispatch) => {
+    dispatch({
+        type: LIMPIAR
+    })
 }

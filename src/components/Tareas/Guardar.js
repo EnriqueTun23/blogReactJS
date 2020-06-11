@@ -9,6 +9,26 @@ import { Redirect } from 'react-router-dom';
 import  *  as tareasActions from '../../actions/tareasActions'
 
 class Guardar extends Component {
+    componentDidMount() {
+        // destructuracion de los props
+        const {
+            match: {params: {usu_id, tar_id}},
+            tareas,
+            cambioUsuarioID,
+            cambioTitulo,
+            limpiarForma
+        } = this.props;
+        // validacion si existe usu_id y tar_id
+        if (usu_id && tar_id) {
+            const tarea = tareas[usu_id][tar_id]
+            // ejecutar props 
+            cambioUsuarioID(tarea.userId);
+            cambioTitulo(tarea.title);
+        } else {
+            limpiarForma()
+        }
+    }
+
     cambioUsuarioId = (event) => {
         this.props.cambioUsuarioID(event.target.value)
 
@@ -17,13 +37,34 @@ class Guardar extends Component {
         this.props.cambioTitulo(event.target.value)
     }
     guardar = () => {
-        const { usuario_id, titulo, agregar } = this.props
+        const { 
+        match: {params: {usu_id, tar_id}},
+        tareas,
+        usuario_id, 
+        titulo, 
+        agregar,
+        editar 
+        } = this.props
+        // para guardar array
         const nueva_tarea = {
             userId: usuario_id,
             title: titulo,
             completed: false
         };
-        agregar(nueva_tarea)
+
+        // validar si existen los ides
+        if (usu_id && tar_id) {
+            const tarea = tareas[usu_id][tar_id];
+            const tarea_editada = {
+                ...nueva_tarea,
+                completed: tarea.completed,
+                id: tarea.id
+            };
+            editar(tarea_editada)
+        } else {
+            // funcion para agregar del action
+            agregar(nueva_tarea)
+        }
     }
     deshabilitar = () => {
         const { usuario_id, titulo, cargando } = this.props
@@ -47,6 +88,10 @@ class Guardar extends Component {
     render() {
         return (
             <div>
+                {
+                    // redireccionar al template
+                    (this.props.regresar) ? < Redirect to='/tareas' /> : ''
+                }
                 <h1>Guardar tarea </h1>
                 usuario id:
                 <input type="number" value={this.props.usuario_id} onChange={this.cambioUsuarioId} />

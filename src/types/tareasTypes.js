@@ -8,4 +8,8 @@ export const CAMBIO_USUARIO_ID = 'tareas_cambio_usuario_id';
 
 export const CAMBIO_TITULO = 'tareas_cambio_titulo';
 
-export const AGREGADA = 'tareas_agregada';
+export const GUARDAR = 'tareas_guardar';
+
+export const ACTUALIZAR_CHECK = 'tareas_actualizar_check'
+
+export const LIMPIAR = 'limpiar'
